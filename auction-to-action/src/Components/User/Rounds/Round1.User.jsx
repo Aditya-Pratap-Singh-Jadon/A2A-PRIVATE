@@ -86,12 +86,14 @@ function injectStyles() {
     }
 
     /* ── Individual card ── */
+    /* Dimensions reduced to 70% of original (340→238, 490→343). */
+    /* left/top are -(width/2) and -(height/2) to centre on deck-root. */
     .csh2-card {
       position: absolute;
-      width: 340px;
-      height: 490px;
-      left: -170px;
-      top: -245px;
+      width: 262px;
+      height: 378px;
+      left: -131px;
+      top: -189px;
       transform-style: preserve-3d;
       will-change: transform;
       pointer-events: none;
@@ -481,7 +483,8 @@ function injectStyles() {
     }
 
     @media (max-width: 600px) {
-      .csh2-card { width: 200px; height: 280px; left: -100px; top: -140px; }
+      /* 10% larger than the 70% reduced original mobile dimensions */
+      .csh2-card { width: 154px; height: 216px; left: -77px; top: -108px; }
       .csh2-front-number { font-size: 56px; }
     }
   `;
@@ -545,6 +548,10 @@ export default function Spin3DCards({
     typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
+  // pendingLiveBidRef: set by the mount-time live-bid poll when a live bid is
+  // found. The socket useEffect (dep: availableItems.length) reads and clears
+  // it once items are loaded so triggerAdminSpin runs with fresh state.
+  const pendingLiveBidRef = useRef(null);
 
   // ── fetchGameItems (unchanged) ──────────────────────────────────────────────
   const fetchGameItems = async () => {
@@ -601,7 +608,7 @@ export default function Spin3DCards({
     }
   };
 
-  // ── Load + rehydrate (unchanged) ────────────────────────────────────────────
+  // ── Load + rehydrate + sync live bid on mount ────────────────────────────────
   useEffect(() => {
     const loadData = async () => {
       if (wheelState) {
@@ -621,6 +628,34 @@ export default function Spin3DCards({
         }
       }
       await fetchGameItems();
+
+      // ── Sync active bid on mount (handles navigation/remount/refresh) ────────
+      // The socket event `wheelRandomSelection` is one-shot: users who were not
+      // on this page when the admin spun the wheel would miss it entirely.
+      // On every mount we poll the backend for the currently live bid and
+      // replay it if we don't already have a selection displayed.
+      //
+      // Guard: skip if localStorage rehydration already gave us a stopped/selected
+      // state (wheelState != null) — that covers the page-refresh case and
+      // avoids re-animating a bid the user already saw reach its stopped state.
+      if (!wheelState) {
+        try {
+          const { data } = await axios.get(
+            `${serverUrl}/api/wheel/live-selection/${round}`,
+          );
+          if (data.success && data.liveSelection) {
+            // Store the live item details in a ref so the socket useEffect
+            // (which re-runs when availableItems.length changes) can pick it up
+            // with fresh, non-stale state. This avoids stale-closure issues with
+            // directly calling triggerAdminSpin from inside loadData.
+            pendingLiveBidRef.current = data.liveSelection.itemDetails;
+          }
+        } catch (err) {
+          // Non-fatal: if the poll fails the component still works normally
+          // for users who are already on the page when the admin spins.
+          console.warn("⚠️ Could not fetch live bid on mount:", err.message);
+        }
+      }
     };
     loadData();
   }, [round]);
@@ -674,6 +709,13 @@ export default function Spin3DCards({
       }
 
       setTimeout(() => {
+        // If resetWheel() was called (e.g. admin skipped) it already set
+        // animatingToPosition.current = false. Honour that cancellation so we
+        // do not re-freeze the wheel after the skip resets it.
+        if (!animatingToPosition.current) {
+          resolve();
+          return;
+        }
         animatingToPosition.current = false;
         setWheelStopped(true);
         resolve();
@@ -783,6 +825,10 @@ export default function Spin3DCards({
 
     try {
       await animateToPosition(targetAngle);
+      // Guard: if resetWheel() was called while we were animating (e.g. admin
+      // skipped the bid), animatingToPosition.current is already false and
+      // isSelecting has been cleared — do not re-stop the wheel.
+      if (!animatingToPosition.current) return;
       setWheelStopped(true);
       if (onBidSelected) onBidSelected(targetItem, availableItems);
     } catch (error) {
@@ -792,6 +838,17 @@ export default function Spin3DCards({
 
   // ── Socket listeners (COMPLETELY UNCHANGED) ──────────────────────────────────
   useEffect(() => {
+    // ── Replay pending live bid (set by mount-time poll) ─────────────────────
+    // pendingLiveBidRef is populated by loadData when the backend reports a
+    // live bid that the user missed (was on another page). This effect runs
+    // whenever availableItems.length changes, so by the time it triggers after
+    // fetchGameItems, availableItems is populated and triggerAdminSpin is fresh.
+    if (pendingLiveBidRef.current && availableItems.length > 0) {
+      const itemDetails = pendingLiveBidRef.current;
+      pendingLiveBidRef.current = null; // consume once so it doesn't re-trigger
+      triggerAdminSpin(itemDetails);
+    }
+
     const socket = io(serverUrl);
     socket.on("connect", () => {
       console.log("🔌 User wheel connected:", socket.id);
