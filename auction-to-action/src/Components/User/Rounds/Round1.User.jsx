@@ -243,10 +243,10 @@ function injectStyles() {
     /* Reference card layout */
     .csh2-front-lot-text {
       position: absolute;
-      top: 50px;
-      right: 28px;
+      top: 36px;
+      right: 20px;
       text-align: right;
-      font-size: 18px;
+      font-size: 14px;
       font-weight: 800;
       line-height: 1.25;
     }
@@ -254,39 +254,39 @@ function injectStyles() {
       display: block;
       color: currentColor;
       opacity: 0.58;
-      font-size: 13px;
+      font-size: 10px;
       letter-spacing: 0.02em;
       text-transform: uppercase;
-      margin-bottom: 5px;
+      margin-bottom: 3px;
     }
 
     /* Top Left Symbol & Number */
     .csh2-front-topleft {
       position: absolute;
-      top: 30px;
-      left: 28px;
+      top: 20px;
+      left: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
     .csh2-front-symbol-large {
-      font-size: 60px;
+      font-size: 44px;
       line-height: 1;
     }
     .csh2-front-number-large {
-      font-size: 36px;
+      font-size: 26px;
       font-weight: 800;
-      margin-top: 2px;
+      margin-top: 0;
     }
 
     /* Middle Resources & Divider */
     .csh2-front-divider {
       display: flex;
       align-items: center;
-      margin: 12px 28px;
+      margin: 8px 20px;
     }
     .csh2-front-divider.top-div {
-      margin-top: 138px;
+      margin-top: 106px;
     }
     .csh2-front-divider::before,
     .csh2-front-divider::after {
@@ -296,50 +296,50 @@ function injectStyles() {
       opacity: 0.48;
     }
     .csh2-front-divider-icon {
-      margin: 0 11px;
-      font-size: 16px;
+      margin: 0 8px;
+      font-size: 11px;
       line-height: 1;
     }
     
     .csh2-front-resources-container {
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      padding: 10px 28px;
+      gap: 9px;
+      padding: 7px 20px;
     }
     .csh2-front-resource-row {
-      min-height: 73px;
+      min-height: 54px;
       box-sizing: border-box;
       display: flex;
       align-items: center;
       border: 1.5px solid currentColor;
-      border-radius: 10px;
-      padding: 8px;
-      gap: 13px;
+      border-radius: 8px;
+      padding: 6px;
+      gap: 9px;
     }
     .csh2-front-resource-icon {
-      width: 54px;
-      min-width: 54px;
-      height: 54px;
+      width: 40px;
+      min-width: 40px;
+      height: 40px;
       display: grid;
       place-items: center;
-      border-radius: 7px;
+      border-radius: 5px;
       background: currentColor;
-      font-size: 28px;
+      font-size: 20px;
     }
     .csh2-front-resource-icon svg { color: #f1e9d2; }
     .csh2-front-resource-copy { min-width: 0; }
     .csh2-front-resource-name {
       display: block;
-      font-size: 17px;
+      font-size: 13px;
       font-weight: 800;
       line-height: 1.1;
       text-transform: uppercase;
     }
     .csh2-front-resource-units {
       display: block;
-      margin-top: 3px;
-      font-size: 14px;
+      margin-top: 2px;
+      font-size: 11px;
       font-weight: 600;
       opacity: 0.82;
     }
@@ -347,7 +347,7 @@ function injectStyles() {
     /* Bottom Info */
     .csh2-front-bottom {
       margin-top: auto;
-      padding: 0 28px 34px;
+      padding: 0 20px 24px;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
@@ -356,14 +356,14 @@ function injectStyles() {
     .csh2-front-price-row {
       display: flex;
       align-items: baseline;
-      gap: 8px;
+      gap: 5px;
     }
     .csh2-front-price-label {
-      font-size: 17px;
+      font-size: 14px;
       font-weight: 600;
     }
     .csh2-front-price-value {
-      font-size: 48px;
+      font-size: 34px;
       font-weight: 800;
       letter-spacing: -0.04em;
     }
@@ -371,20 +371,20 @@ function injectStyles() {
     /* Bottom Right Symbol */
     .csh2-front-bottomright {
       position: absolute;
-      bottom: 22px;
-      right: 28px;
+      bottom: 17px;
+      right: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
     .csh2-front-number-small {
-      font-size: 34px;
+      font-size: 26px;
       font-weight: 800;
       line-height: 1;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
     .csh2-front-symbol-small {
-      font-size: 48px;
+      font-size: 36px;
       line-height: 1;
     }
 
