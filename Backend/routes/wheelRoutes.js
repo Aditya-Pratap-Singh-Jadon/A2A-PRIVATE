@@ -3,6 +3,33 @@ const router = express.Router();
 const WheelSelection = require('../models/WheelSelection');
 const { protectAdmin } = require('../middleware/authMiddleware');
 
+// ── Public: get the currently live bid for a round (no auth required) ──────────
+// Used by user-side components on mount so they can display an active bid
+// even if they missed the original wheelRandomSelection socket event.
+router.get('/live-selection/:round', async (req, res) => {
+  try {
+    const round = parseInt(req.params.round, 10);
+    const liveSelection = await WheelSelection.findOne({
+      round,
+      eventType: 'RANDOM_SELECTED',
+      isLive: true
+    }).sort({ timestamp: -1 });
+
+    res.json({
+      success: true,
+      liveSelection: liveSelection || null,
+      message: liveSelection ? 'Live selection found' : 'No active selection'
+    });
+  } catch (error) {
+    console.error('Error fetching live selection:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch live selection',
+      error: error.message
+    });
+  }
+});
+
 // Get latest wheel selection for a round
 router.get('/wheel-selection/:round', protectAdmin, async (req, res) => {
   try {
